@@ -1,0 +1,28 @@
+# Local OpenCode install output if the installer is run against this repo
+.opencode/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs and temp files
+*.log
+tmp/
+temp/
+.cache/
+
+# JavaScript/TypeScript plugin dependencies and build output
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+build/
+
+# Rust installer experiments, if added later
+target/

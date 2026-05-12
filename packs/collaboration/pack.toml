@@ -1,0 +1,53 @@
+[pack]
+name = "collaboration"
+version = "0.1.0"
+description = "Controlled collaboration agents, skills, and commands for OpenCode."
+
+[[item]]
+kind = "agent"
+name = "collaborator"
+source = "agents/collaborator.md"
+target = ".opencode/agents/collaborator.md"
+default = true
+
+[[item]]
+kind = "agent"
+name = "audit-plan"
+source = "agents/audit-plan.md"
+target = ".opencode/agents/audit-plan.md"
+default = true
+
+[[item]]
+kind = "agent"
+name = "guided-implement"
+source = "agents/guided-implement.md"
+target = ".opencode/agents/guided-implement.md"
+default = true
+
+[[item]]
+kind = "skill"
+name = "colab-audit-plan"
+source = "skills/colab-audit-plan"
+target = ".opencode/skills/colab-audit-plan"
+default = true
+
+[[item]]
+kind = "skill"
+name = "guided-implement"
+source = "skills/guided-implement"
+target = ".opencode/skills/guided-implement"
+default = true
+
+[[item]]
+kind = "command"
+name = "audit-plan"
+source = "commands/audit-plan.md"
+target = ".opencode/commands/audit-plan.md"
+default = true
+
+[[item]]
+kind = "command"
+name = "guided-implement"
+source = "commands/guided-implement.md"
+target = ".opencode/commands/guided-implement.md"
+default = true
