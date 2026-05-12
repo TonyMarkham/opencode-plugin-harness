@@ -24,7 +24,25 @@ Windows PowerShell:
 .\vendor\opencode-plugin-harness\install.ps1 -Pack collaboration -Target .
 ```
 
+The PowerShell installer defaults to `-Mode auto`. On Windows, auto mode uses directory junctions for skill directories and falls back to copying file entries when file symlinks require administrator privileges or Developer Mode.
+
 The installer creates `.opencode/agents`, `.opencode/skills`, and `.opencode/commands` when needed, then links selected pack entries into those directories.
+
+## Use Guided Implementation
+
+Prefer the command or no-edit agent so OpenCode applies guided implementation permissions, not just the skill text:
+
+```text
+/guided-implement path/to/plan.md
+```
+
+or:
+
+```text
+@guided-implement Use the guided-implement skill on path/to/plan.md.
+```
+
+Calling `Use the guided-implement skill...` from a permissive build/edit agent may load the skill text without removing that agent's file-edit permissions.
 
 ## Install Specific Entries
 
@@ -44,7 +62,7 @@ PowerShell:
 
 ## Copy Fallback
 
-Symlinks can require extra permissions on Windows. If linking fails, use copy mode:
+Symlinks can require extra permissions on Windows. If you want to avoid links entirely, use copy mode:
 
 ```bash
 bash vendor/opencode-plugin-harness/install.sh --pack collaboration --copy
@@ -55,6 +73,12 @@ bash vendor/opencode-plugin-harness/install.sh --pack collaboration --copy
 ```
 
 Copy mode is safer for environments that do not support symlinks, but copied prompts can become stale when the submodule is updated.
+
+To require symlinks and fail instead of falling back, use strict link mode:
+
+```powershell
+.\vendor\opencode-plugin-harness\install.ps1 -Pack collaboration -Mode link
+```
 
 ## Pack Manifest
 

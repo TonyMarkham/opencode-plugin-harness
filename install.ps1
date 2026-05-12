@@ -2,8 +2,8 @@
 param(
     [string]$Pack = "collaboration",
     [string]$Target = ".",
-    [ValidateSet("link", "copy")]
-    [string]$Mode = "link",
+    [ValidateSet("auto", "link", "copy")]
+    [string]$Mode = "auto",
     [string[]]$Kind = @(),
     [string[]]$Name = @(),
     [switch]$All,
@@ -66,6 +66,57 @@ function Read-PackItems {
     return $items
 }
 
+function Copy-HarnessItem {
+    param(
+        [string]$Source,
+        [string]$Destination
+    )
+
+    if (Test-Path -LiteralPath $Source -PathType Container) {
+        New-Item -ItemType Directory -Path $Destination -Force | Out-Null
+        Get-ChildItem -LiteralPath $Source -Force | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $Destination -Recurse -Force
+        }
+    } else {
+        Copy-Item -LiteralPath $Source -Destination $Destination -Force
+    }
+}
+
+function New-HarnessLink {
+    param(
+        [pscustomobject]$Item,
+        [string]$Source,
+        [string]$Destination
+    )
+
+    $isDirectory = Test-Path -LiteralPath $Source -PathType Container
+    $runningOnWindows = [System.IO.Path]::DirectorySeparatorChar -eq '\'
+
+    if ($Mode -eq "copy") {
+        Copy-HarnessItem -Source $Source -Destination $Destination
+        "Copied $($Item.kind) '$($Item.name)' to $Destination"
+        return
+    }
+
+    if ($Mode -eq "auto" -and $runningOnWindows -and $isDirectory) {
+        New-Item -ItemType Junction -Path $Destination -Target $Source | Out-Null
+        "Junctioned $($Item.kind) '$($Item.name)' to $Destination"
+        return
+    }
+
+    try {
+        New-Item -ItemType SymbolicLink -Path $Destination -Target $Source -ErrorAction Stop | Out-Null
+        "Linked $($Item.kind) '$($Item.name)' to $Destination"
+    } catch {
+        if ($Mode -ne "auto") {
+            throw "Unable to create symbolic link for $($Item.kind) '$($Item.name)': $($_.Exception.Message). Use -Mode copy, enable Windows Developer Mode, or run PowerShell as administrator."
+        }
+
+        Copy-HarnessItem -Source $Source -Destination $Destination
+        "Copied $($Item.kind) '$($Item.name)' to $Destination because symbolic links are unavailable: $($_.Exception.Message)"
+    }
+}
+
 $kindFilter = @($Kind | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 $nameFilter = @($Name | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 
@@ -122,7 +173,7 @@ foreach ($item in $items) {
     if (Test-Path -LiteralPath $destination) {
         $existing = Get-Item -LiteralPath $destination -Force
         if ($existing.LinkType) {
-            if ([string]$existing.Target -eq $source) {
+            if (@($existing.Target) -contains $source) {
                 "Already installed: $($item.kind) '$($item.name)'"
                 continue
             }
@@ -132,15 +183,13 @@ foreach ($item in $items) {
                 throw "Refusing to replace existing symlink: $destination"
             }
         } else {
-            throw "Refusing to overwrite non-link path: $destination"
+            if ($Force) {
+                Remove-Item -LiteralPath $destination -Recurse -Force
+            } else {
+                throw "Refusing to overwrite non-link path: $destination"
+            }
         }
     }
 
-    if ($Mode -eq "copy") {
-        Copy-Item -LiteralPath $source -Destination $destination -Recurse
-        "Copied $($item.kind) '$($item.name)' to $destination"
-    } else {
-        New-Item -ItemType SymbolicLink -Path $destination -Target $source | Out-Null
-        "Linked $($item.kind) '$($item.name)' to $destination"
-    }
+    New-HarnessLink -Item $item -Source $source -Destination $destination
 }

@@ -1,6 +1,6 @@
 [pack]
 name = "collaboration"
-version = "0.1.0"
+version = "0.1.2"
 description = "Controlled collaboration agents, skills, and commands for OpenCode."
 
 [[item]]
@@ -22,6 +22,34 @@ kind = "agent"
 name = "guided-implement"
 source = "agents/guided-implement.md"
 target = ".opencode/agents/guided-implement.md"
+default = true
+
+[[item]]
+kind = "agent"
+name = "pair-ask"
+source = "agents/pair-ask.md"
+target = ".opencode/agents/pair-ask.md"
+default = true
+
+[[item]]
+kind = "agent"
+name = "pair-do"
+source = "agents/pair-do.md"
+target = ".opencode/agents/pair-do.md"
+default = true
+
+[[item]]
+kind = "agent"
+name = "pair-teach"
+source = "agents/pair-teach.md"
+target = ".opencode/agents/pair-teach.md"
+default = true
+
+[[item]]
+kind = "agent"
+name = "plan-reviewer"
+source = "agents/plan-reviewer.md"
+target = ".opencode/agents/plan-reviewer.md"
 default = true
 
 [[item]]

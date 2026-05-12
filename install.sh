@@ -159,8 +159,12 @@ install_item() {
         exit 1
       fi
     else
-      echo "Refusing to overwrite non-link path: $dest" >&2
-      exit 1
+      if [ "$force" -eq 1 ]; then
+        rm -rf "$dest"
+      else
+        echo "Refusing to overwrite non-link path: $dest" >&2
+        exit 1
+      fi
     fi
   fi
 
